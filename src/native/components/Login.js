@@ -53,17 +53,16 @@ class Login extends Component {
   handleSubmit = async () => {
     const { onFormSubmit } = this.props;
     onFormSubmit(this.state)
-      .then( async () => {
-
+      .then(async () => {
         Actions.tabbar();
 
         const enabled = await firebase.messaging().hasPermission();
         if (!enabled) {
           try {
-              await firebase.messaging().requestPermission();
-              // User has authorised
+            await firebase.messaging().requestPermission();
+            // User has authorised
           } catch (error) {
-              // User has rejected permissions
+            // User has rejected permissions
           }
         }
       })
@@ -72,18 +71,18 @@ class Login extends Component {
 
   handleLoginWithFacebook = () => {
     LoginManager.logInWithReadPermissions(['public_profile']).then(
-      function(result) {
+      (result) => {
         if (result.isCancelled) {
           console.log('Login was cancelled');
         } else {
-          console.log('Login was successful with permissions: '
-            + result.grantedPermissions.toString());
-          console.log("result", result);
+          console.log(`Login was successful with permissions: ${
+            result.grantedPermissions.toString()}`);
+          console.log('result', result);
         }
       },
-      function(error) {
-        alert('Login failed with error: ' + error);
-      }
+      (error) => {
+        console.log(`Login failed with error: ${error}`);
+      },
     );
   }
 
@@ -136,7 +135,13 @@ class Login extends Component {
                 </Text>
               </Button>
               <Spacer size={5} />
-              <Button style={{backgroundColor:socialColors.facebook}} iconLeft primary block onPress={this.handleLoginWithFacebook}>
+              <Button
+                style={{ backgroundColor: socialColors.facebook }}
+                iconLeft
+                primary
+                block
+                onPress={this.handleLoginWithFacebook}
+              >
                 <Icon name="logo-facebook" />
                 <Text>
                   {translate('Login With Facebook', locale)}
