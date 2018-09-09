@@ -1,3 +1,11 @@
 {
-  "presets": ["react-native"]
+  "presets": ["react-native"],
+  "env": {
+    "development": {
+      "plugins": [
+        "functional-hmr",
+        "transform-decorators-legacy"
+      ]
+    }
+  }
 }
