@@ -3,6 +3,20 @@ import statusMessage from './status';
 import { Firebase } from '../lib/firebase';
 
 /**
+  * Set User's Data
+  */
+export function setUserData(dispatch, user) {
+  const UID = Firebase.auth().currentUser.uid;
+  return new Promise((resolve) => {
+    Firebase.database().ref().child(`users/${UID}`).set({
+      ...user,
+      signedUp: Firebase.database.ServerValue.TIMESTAMP,
+      lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
+    }).then(() => statusMessage(dispatch, 'loading', false).then(resolve));
+  });
+}
+
+/**
   * Sign Up to Firebase
   */
 export function signUp(formData) {
@@ -25,14 +39,12 @@ export function signUp(formData) {
     // Go to Firebase
     return Firebase.auth()
       .createUserWithEmailAndPassword(email, password)
-      .then((res) => {
+      .then(async (res) => {
         // Send user details to Firebase database
         if (res && res.user && res.user.uid) {
-          Firebase.database().ref().child(`users/${res.user.uid}`).set({
+          setUserData(dispatch, {
             firstName,
             lastName,
-            signedUp: Firebase.database.ServerValue.TIMESTAMP,
-            lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
           }).then(() => statusMessage(dispatch, 'loading', false).then(resolve));
         }
       }).catch(reject);
@@ -63,6 +75,28 @@ function getUserData(dispatch) {
       data: userData,
     });
   });
+}
+
+/**
+  * Update User's Data
+  */
+function updateUserData(dispatch, user) {
+  if (user.uid) {
+    // Update last logged in data
+    Firebase.database().ref().child(`users/${user.uid}`).update({
+      lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
+    });
+
+    // Send verification Email when email hasn't been verified
+    if (user.emailVerified === false) {
+      Firebase.auth().currentUser
+        .sendEmailVerification()
+        .catch(() => console.log('Verification email failed to send'));
+    }
+
+    // Get User Data
+    getUserData(dispatch);
+  }
 }
 
 export function getMemberData() {
@@ -99,33 +133,70 @@ export function login(formData) {
       .signInWithEmailAndPassword(email, password)
       .then(async (res) => {
         const user = res && res.user ? res.user : null;
-
-        if (user.uid) {
-          // Update last logged in data
-          Firebase.database().ref().child(`users/${user.uid}`).update({
-            lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
-          });
-
-          // Send verification Email when email hasn't been verified
-          if (user.emailVerified === false) {
-            Firebase.auth().currentUser
-              .sendEmailVerification()
-              .catch(() => console.log('Verification email failed to send'));
-          }
-
-          // Get User Data
-          getUserData(dispatch);
-        }
-
+        updateUserData(dispatch, user);
         await statusMessage(dispatch, 'loading', false);
-
-        // Send Login data to Redux
         return resolve(dispatch({
           type: 'USER_LOGIN',
           data: user,
         }));
-
       }).catch(reject);
+  }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
+}
+
+/**
+  * Login to Firebase with Auth Provider
+  */
+export function loginWithAuthProvider(data) {
+  const {
+    credential,
+    providerId,
+  } = data;
+
+  return dispatch => new Promise(async (resolve, reject) => {
+    await statusMessage(dispatch, 'loading', true);
+
+    let currentUser;
+
+    try {
+      let token;
+      if (providerId === 'facebook.com') {
+        token = Firebase.auth.FacebookAuthProvider.credential(credential.token);
+      }
+      currentUser = await Firebase.auth().signInAndRetrieveDataWithCredential(token);
+    } catch (error) {
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        try {
+          const methods = await Firebase.auth().fetchSignInMethodsForEmail(error.email);
+          // const pendingCred = error.credential;
+          if (methods[0] === 'password') {
+            return reject({ message: ErrorMessages.memberExistsWithMethodPassword });
+          }
+        } catch (e) {
+          console.log('e', e);
+        }
+      }
+    }
+    updateUserData(dispatch, currentUser.user);
+
+    const { profile } = currentUser.additionalUserInfo;
+
+    try {
+      await setUserData(dispatch, {
+        firstName: profile.first_name,
+        lastName: profile.last_name,
+        picture: profile.picture.data.url,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+    await statusMessage(dispatch, 'loading', false);
+
+    // Send Login data to Redux
+    return resolve(dispatch({
+      type: 'USER_LOGIN',
+      data: currentUser.user,
+    }));
   }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
 }
 

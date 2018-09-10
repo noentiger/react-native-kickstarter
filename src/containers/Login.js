@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { login } from '../actions/member';
+import { login, loginWithAuthProvider } from '../actions/member';
 
 const Login = ({
   Layout,
@@ -13,6 +13,7 @@ const Login = ({
   infoMessage,
   errorMessage,
   successMessage,
+  onLogin,
 }) => (
   <Layout
     member={member}
@@ -22,6 +23,7 @@ const Login = ({
     error={errorMessage}
     success={successMessage}
     onFormSubmit={onFormSubmit}
+    onLogin={onLogin}
   />
 );
 
@@ -30,6 +32,7 @@ Login.propTypes = {
   locale: PropTypes.string,
   member: PropTypes.shape({}).isRequired,
   onFormSubmit: PropTypes.func.isRequired,
+  onLogin: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
   infoMessage: PropTypes.string,
   errorMessage: PropTypes.string,
@@ -54,6 +57,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   onFormSubmit: login,
+  onLogin: loginWithAuthProvider,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

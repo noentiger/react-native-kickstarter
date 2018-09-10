@@ -41,6 +41,16 @@ export default function userReducer(state = initialState, action) {
       }
       return initialState;
     }
+    case 'USER_EXISTS': {
+      if (action.data) {
+        return {
+          ...state,
+          loading: false,
+          error: action.data,
+        };
+      }
+      return initialState;
+    }
     case 'USER_RESET': {
       return initialState;
     }

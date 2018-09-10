@@ -12,7 +12,9 @@ export default {
   missingFirstName: 'First name is missing',
   missingLastName: 'Last name is missing',
   missingEmail: 'Email is missing',
+  missingCredentials: 'Missing credentials',
   missingPassword: 'Password is missing',
+  memberExistsWithMethodPassword: 'You already have an account, please login with email and password',
 
   // Recipes
   recipe404: 'Recipe not found',

@@ -5,7 +5,7 @@ import {
 } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import firebase from 'react-native-firebase';
-import { LoginManager } from 'react-native-fbsdk';
+import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import Loading from './Loading';
 import Messages from './Messages';
 import { translate } from '../../i18n';
@@ -25,6 +25,7 @@ class Login extends Component {
     error: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     onFormSubmit: PropTypes.func.isRequired,
+    onLogin: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
@@ -50,40 +51,56 @@ class Login extends Component {
     });
   }
 
+  requestPushNoticiationPermission = async () => {
+    const enabled = await firebase.messaging().hasPermission();
+    if (!enabled) {
+      try {
+        await firebase.messaging().requestPermission();
+        // User has authorised
+      } catch (error) {
+        // User has rejected permissions
+      }
+    }
+  }
+
   handleSubmit = async () => {
     const { onFormSubmit } = this.props;
     onFormSubmit(this.state)
       .then(async () => {
         Actions.tabbar();
-
-        const enabled = await firebase.messaging().hasPermission();
-        if (!enabled) {
-          try {
-            await firebase.messaging().requestPermission();
-            // User has authorised
-          } catch (error) {
-            // User has rejected permissions
-          }
-        }
+        this.requestPushNoticiationPermission();
       })
       .catch(e => console.log(`Error: ${e}`));
   }
 
-  handleLoginWithFacebook = () => {
-    LoginManager.logInWithReadPermissions(['public_profile']).then(
-      (result) => {
-        if (result.isCancelled) {
-          console.log('Login was cancelled');
-        } else {
-          console.log(`Login was successful with permissions: ${
-            result.grantedPermissions.toString()}`);
-          console.log('result', result);
-        }
-      },
-      (error) => {
-        console.log(`Login failed with error: ${error}`);
-      },
-    );
+  handleLoginWithFacebook = async () => {
+    const { onLogin } = this.props;
+    try {
+      const result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+
+      if (result.isCancelled) {
+        throw new Error('User cancelled request');
+      }
+
+      const data = await AccessToken.getCurrentAccessToken();
+
+      if (!data) {
+        throw new Error('Something went wrong obtaining the users access token');
+      }
+
+      const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+
+      await onLogin({
+        credential,
+        providerId: 'facebook.com',
+      });
+
+      Actions.tabbar();
+      this.requestPushNoticiationPermission();
+
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   render() {
