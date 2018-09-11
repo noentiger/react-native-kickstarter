@@ -13,6 +13,7 @@ export default function userReducer(state = initialState, action) {
           uid: action.data.uid,
           email: action.data.email,
           emailVerified: action.data.emailVerified,
+          isLoggedin: true,
         };
       }
       return initialState;

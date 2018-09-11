@@ -1,14 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Container, Content, Text, Button, ActionSheet,
+  Container,
+  Content,
+  ListItem,
+  Text,
+  Radio,
+  Right,
+  Left,
 } from 'native-base';
+import {
+  StyleSheet,
+} from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Loading from './Loading';
 import Messages from './Messages';
-import Header from './Header';
 
 import { Translations } from '../../i18n';
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+    paddingTop: 10,
+  },
+});
 
 class Locale extends Component {
   static propTypes = {
@@ -25,51 +40,33 @@ class Locale extends Component {
   handleChange = (locale) => {
     const { onChangeLocale } = this.props;
     onChangeLocale(locale)
-      .then(() => Actions.pop)
+      .then(() => Actions.pop())
       .catch(e => console.log(`Error: ${e}`));
-  }
-
-  changeLocale = () => {
-    // Form array of possible locales eg. ['en', 'it']
-    const options = Object.keys(Translations);
-    options.push('Cancel');
-
-    ActionSheet.show(
-      {
-        title: 'Select language',
-        cancelButtonIndex: options.length - 1,
-        options,
-      },
-      (idx) => {
-        if (idx !== options.length - 1) {
-          this.handleChange(options[idx]);
-        }
-      },
-    );
   }
 
   render() {
     const { loading, error, locale } = this.props;
+    const listItems = Object.keys(Translations).map(key => (
+      <ListItem key={key} selected={key === locale} onPress={() => this.handleChange(key)}>
+        <Left>
+          <Text>{Translations[key].name}</Text>
+        </Left>
+        <Right>
+          <Radio
+            color="#dddddd"
+            selectedColor="#191919"
+            selected={key === locale}
+          />
+        </Right>
+      </ListItem>
+    ));
 
     if (loading) return <Loading />;
-
     return (
-      <Container>
-        <Content padder>
-          <Header
-            title="Change language"
-            content=""
-          />
-
-          {error && <Messages message={error} />}
-
-          <Button block onPress={this.changeLocale}>
-            <Text>
-Change from
-              {' '}
-              {locale}
-            </Text>
-          </Button>
+      <Container style={styles.container}>
+        {error && <Messages message={error} />}
+        <Content>
+          {listItems}
         </Content>
       </Container>
     );

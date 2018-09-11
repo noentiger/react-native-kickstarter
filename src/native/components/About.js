@@ -1,11 +1,20 @@
 import React from 'react';
 import {
+  StyleSheet,
+} from 'react-native';
+import {
   Container, Content, Text, H1, H2, H3,
 } from 'native-base';
 import Spacer from './Spacer';
 
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+  },
+});
+
 const About = () => (
-  <Container>
+  <Container style={styles.container}>
     <Content padder>
       <Spacer size={30} />
       <H1>

@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+
 import { Scene, Tabs, Stack } from 'react-native-router-flux';
 import { Icon } from 'native-base';
 
@@ -24,6 +29,9 @@ import LocaleComponent from '../components/Locale';
 import UpdateProfileContainer from '../../containers/UpdateProfile';
 import UpdateProfileComponent from '../components/UpdateProfile';
 
+import SettingsContainer from '../../containers/Settings';
+import SettingsComponent from '../components/Settings';
+
 import MemberContainer from '../../containers/Member';
 import ProfileComponent from '../components/Profile';
 
@@ -42,16 +50,25 @@ const Index = (
         <Stack
           key="home"
           title={AppConfig.appName.toUpperCase()}
-          icon={() => <Icon name="planet" {...DefaultProps.icons} />}
+          icon={() => <Icon name="search" {...DefaultProps.icons} />}
           {...DefaultProps.navbarProps}
         >
           <Scene key="home" component={AboutComponent} />
         </Stack>
 
         <Stack
+          key="add"
+          title="ADD"
+          icon={() => <Icon name="create" {...DefaultProps.icons} />}
+          {...DefaultProps.navbarProps}
+        >
+          <Scene key="add" component={RecipesContainer} Layout={RecipesComponent} />
+        </Stack>
+
+        <Stack
           key="recipes"
           title="RECIPES"
-          icon={() => <Icon name="book" {...DefaultProps.icons} />}
+          icon={() => <Icon name="heart" {...DefaultProps.icons} />}
           {...DefaultProps.navbarProps}
         >
           <Scene key="recipes" component={RecipesContainer} Layout={RecipesComponent} />
@@ -103,6 +120,14 @@ const Index = (
             {...DefaultProps.navbarProps}
             component={UpdateProfileContainer}
             Layout={UpdateProfileComponent}
+          />
+          <Scene
+            back
+            key="settings"
+            title="SETTINGS"
+            {...DefaultProps.navbarProps}
+            component={SettingsContainer}
+            Layout={SettingsComponent}
           />
         </Stack>
       </Tabs>

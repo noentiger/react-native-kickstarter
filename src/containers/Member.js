@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { logout, getMemberData } from '../actions/member';
+import { getMemberData } from '../actions/member';
 
 class Member extends Component {
   static propTypes = {
     Layout: PropTypes.func.isRequired,
-    memberLogout: PropTypes.func.isRequired,
     fetchData: PropTypes.func.isRequired,
     member: PropTypes.shape({
       loading: PropTypes.bool.isRequired,
@@ -21,9 +20,9 @@ class Member extends Component {
   }
 
   render = () => {
-    const { Layout, member, memberLogout } = this.props;
+    const { Layout, member } = this.props;
 
-    return <Layout member={member} logout={memberLogout} />;
+    return <Layout member={member} />;
   }
 }
 
@@ -32,7 +31,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = {
-  memberLogout: logout,
   fetchData: getMemberData,
 };
 
