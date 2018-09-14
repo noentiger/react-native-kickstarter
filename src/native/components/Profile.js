@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import {
   View,
   StyleSheet,
-  Image,
   TouchableOpacity,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import {
-  Container, Content, Icon, Button, Text, Body, H2, ListItem, Left,
+  Container, Content, Icon, Button, Text, Body, H2, ListItem, Left, Header,
 } from 'native-base';
+
+import Avatar from './Avatar';
 
 import Colors from '../../../native-base-theme/variables/commonColor';
 
@@ -18,17 +19,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.brandPrimary,
     height: 200,
   },
-  avatar: {
-    width: 130,
-    height: 130,
-    borderRadius: 63,
-    borderWidth: 4,
-    borderColor: 'white',
+  avatarStyle: {
     marginBottom: 10,
     alignSelf: 'center',
     position: 'absolute',
     marginTop: 130,
-    backgroundColor: Colors.brandLight,
   },
   name: {
     fontSize: 22,
@@ -84,13 +79,14 @@ class Profile extends Component {
     const {
       picture, firstName, lastName, about, isLoggedin,
     } = member;
+    console.log('Avatar', Avatar);
     return (
       <Container>
         {(isLoggedin)
           ? (
             <Content>
-              <View style={styles.header} />
-              <Image style={styles.avatar} source={{ uri: picture }} />
+              <Header style={styles.header} />
+              <Avatar avatarStyle={styles.avatarStyle} picture={picture} />
               <Body style={styles.body}>
                 <Body style={styles.bodyContent}>
                   <H2 style={styles.name}>{`${firstName} ${lastName}`}</H2>

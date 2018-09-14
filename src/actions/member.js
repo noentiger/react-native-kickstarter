@@ -185,8 +185,7 @@ export function loginWithAuthProvider(data) {
       await setUserData(dispatch, {
         firstName: profile.first_name,
         lastName: profile.last_name,
-        // Some issue with Facebook Picture so remove for now
-        // picture: profile.picture.data.url,
+        picture: profile.picture.data.url,
       });
     } catch (e) {
       console.log(e);
