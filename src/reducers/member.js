@@ -12,6 +12,7 @@ export default function userReducer(state = initialState, action) {
           error: null,
           uid: action.data.uid,
           email: action.data.email,
+          picture: action.data.picture,
           emailVerified: action.data.emailVerified,
           isLoggedin: true,
         };
@@ -26,6 +27,8 @@ export default function userReducer(state = initialState, action) {
           error: null,
           firstName: action.data.firstName,
           lastName: action.data.lastName,
+          picture: action.data.picture,
+          about: action.data.about,
           signedUp: action.data.signedUp,
           role: action.data.role,
         };

@@ -17,6 +17,7 @@ class UpdateProfile extends Component {
     member: PropTypes.shape({
       firstName: PropTypes.string,
       lastName: PropTypes.string,
+      about: PropTypes.string,
       email: PropTypes.string,
     }).isRequired,
   }
@@ -31,6 +32,7 @@ class UpdateProfile extends Component {
     this.state = {
       firstName: props.member.firstName || '',
       lastName: props.member.lastName || '',
+      about: props.member.about || '',
       email: props.member.email || '',
       password: '',
       changeEmail: false,
@@ -59,6 +61,7 @@ class UpdateProfile extends Component {
     const {
       firstName,
       lastName,
+      about,
       email,
       changeEmail,
       changePassword,
@@ -79,7 +82,7 @@ class UpdateProfile extends Component {
           {success && <Messages message={success} type="success" />}
 
           <Form>
-            <Item stackedLabel>
+            <Item floatingLabel>
               <Label>
                 First Name
               </Label>
@@ -89,13 +92,26 @@ class UpdateProfile extends Component {
               />
             </Item>
 
-            <Item stackedLabel>
+            <Item floatingLabel>
               <Label>
                 Last Name
               </Label>
               <Input
                 value={lastName}
                 onChangeText={v => this.handleChange('lastName', v)}
+              />
+            </Item>
+
+            <Item floatingLabel>
+              <Label>
+                About
+              </Label>
+              <Input
+                multiline
+                numberOfLines={5}
+                style={{ height: 100 }}
+                onChangeText={v => this.handleChange('about', v)}
+                value={about}
               />
             </Item>
 

@@ -12,7 +12,8 @@ export function setUserData(dispatch, user) {
       ...user,
       signedUp: Firebase.database.ServerValue.TIMESTAMP,
       lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
-    }).then(() => statusMessage(dispatch, 'loading', false).then(resolve));
+    })
+      .then(() => statusMessage(dispatch, 'loading', false).then(resolve));
   });
 }
 
@@ -184,7 +185,8 @@ export function loginWithAuthProvider(data) {
       await setUserData(dispatch, {
         firstName: profile.first_name,
         lastName: profile.last_name,
-        picture: profile.picture.data.url,
+        // Some issue with Facebook Picture so remove for now
+        // picture: profile.picture.data.url,
       });
     } catch (e) {
       console.log(e);
@@ -229,6 +231,7 @@ export function updateProfile(formData) {
     password,
     firstName,
     lastName,
+    about,
     changeEmail,
     changePassword,
   } = formData;
@@ -241,6 +244,7 @@ export function updateProfile(formData) {
     // Validation checks
     if (!firstName) return reject({ message: ErrorMessages.missingFirstName });
     if (!lastName) return reject({ message: ErrorMessages.missingLastName });
+    if (!about) return reject({ message: ErrorMessages.missingAbout });
     if (changeEmail) {
       if (!email) return reject({ message: ErrorMessages.missingEmail });
     }
@@ -251,7 +255,7 @@ export function updateProfile(formData) {
     await statusMessage(dispatch, 'loading', true);
 
     // Go to Firebase
-    return Firebase.database().ref().child(`users/${UID}`).update({ firstName, lastName })
+    return Firebase.database().ref().child(`users/${UID}`).update({ firstName, lastName, about })
       .then(async () => {
         // Update Email address
         if (changeEmail) {
@@ -267,7 +271,8 @@ export function updateProfile(formData) {
         await getUserData(dispatch);
         await statusMessage(dispatch, 'success', 'Profile Updated');
         resolve();
-      }).catch(reject);
+      })
+      .catch(reject);
   }).catch(async (err) => { await statusMessage(dispatch, 'error', err.message); throw err.message; });
 }
 
